@@ -1,0 +1,24 @@
+<form id="metricForm" method="POST" action="/submit_metric/{{ metric_id }}">
+    <h3>{{ config.title }}</h3>
+    {% if 'user_label' not in config.get('hidden', []) %}
+    <label class="labblack">{{ config.labels.user_label }}:</label>
+    <input type="text" name="user_name">
+    {% endif %}
+    {% if 'initiator_label' not in config.get('hidden', []) %}
+    <label class="labblack">{{ config.labels.initiator_label }}:</label>
+    <input type="text" name="initiator">
+    {% endif %}
+    {% if 'label1' not in config.get('hidden', []) %}
+    <label class="labblack">{{ config.labels.label1 }}:</label>
+    <input type="text" name="field1">
+    {% endif %}
+    {% if 'label2' not in config.get('hidden', []) %}
+    <label class="labblack">{{ config.labels.label2 }}:</label>
+    <input type="text" name="field2">
+    {% endif %}
+    {% if 'label3' not in config.get('hidden', []) %}
+    <label class="labblack">{{ config.labels.label3 }}:</label>
+    <input type="text" name="field3">
+    {% endif %}
+    <button type="submit">Сохранить</button>
+</form>
