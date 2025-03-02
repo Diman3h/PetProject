@@ -3,6 +3,8 @@
 ## Демонстрация работы
 
 [Видео демонстрация](https://gifyu.com/image/bbpP4)
+![image](https://github.com/user-attachments/assets/eb9eb7e2-33e2-40fb-a87a-eb3e8f0fba12)
+![image](https://github.com/user-attachments/assets/0a59b618-3dac-451f-a4bd-eed3c84baafb)
 
 ## Установка
 
