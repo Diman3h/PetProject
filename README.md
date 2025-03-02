@@ -16,6 +16,17 @@
 6. Инициализировать БД: python init_db.py
 7. Запустить: python flask_app.py
 
+## UPDATE Установка через Docker
+1. В терминале с dockerfile запустить
+   docker-compose up -d
+2. Во втором терминале инициализировать базу данных:
+   docker-compose exec web python init_db.py
+
+После установки сайт будет доступен по адресу: http://localhost:5000
+
+Данные для входа(генерируется в init_db.py):
+- Логин: admin, Пароль: admin
+  
 ## Стек
 
 - Backend: Python/Flask
