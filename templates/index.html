@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Метрики</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <script>
+    const METRIC_CONFIGS = {{ metrics|tojson|safe }};
+
+    $(document).ready(function () {
+
+      $(".toggle").click(function (event) {
+        const sectionId = $(this).data('section-id');
+        event.stopPropagation();
+
+        const sectionContent = $(`.section-content[data-section="${sectionId}"]`);
+
+        $('.section-content').hide();
+
+        if (!sectionContent.is(":visible")) {
+          sectionContent.show();
+        }
+
+        $(".container").removeClass("active").empty();
+      });
+
+      $(".metrik").click(function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        const metricId = $(this).data("metric");
+
+        $(".container").removeClass("active").empty();
+
+
+        fetch(`/get_form/${metricId}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.text();
+            })
+            .then(html => {
+                $(".container")
+                    .html(html)
+                    .addClass("active");
+                initializeFormSubmit(metricId);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ошибка при загрузке формы');
+            });
+      });
+
+
+      function initializeFormSubmit(metricId) {
+        const form = document.getElementById('metricForm');
+        form.addEventListener('submit', function(event) {
+          event.preventDefault();
+          fetch(`/submit_metric/${metricId}`, {
+            method: 'POST',
+            body: new FormData(this)
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Ошибка сети');
+            }
+            return response.json();
+          })
+          .then(data => {
+            if (data.status === "success") {
+              alert('Данные успешно сохранены');
+              const progressBar = document.getElementById(`progress-${metricId}`);
+              if (progressBar) {
+                const progressPercent = Math.min((data.current_count / data.target_count) * 100, 100);
+                progressBar.style.setProperty('--progress', `${progressPercent}%`);
+              }
+              form.reset();
+              checkAllMetrics(); // Обновляем все индикаторы
+            } else {
+              alert('Ошибка при сохранении: ' + data.message);
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('Произошла ошибка при сохранении данных');
+          });
+
+        });
+      }
+
+
+      function updateSectionProgress(data) {
+        const sectionProgress = {};
+
+
+        for (let id in METRIC_CONFIGS) {
+          const config = METRIC_CONFIGS[id];
+          const sectionId = config.section_id;
+          const status = data[id] || { current: 0 };
+
+          if (!sectionProgress[sectionId]) {
+            sectionProgress[sectionId] = {
+              completed: 0,
+              total: 0,
+              threshold: 0.7  // Порог выполнения (70% метрик)
+            };
+          }
+
+          sectionProgress[sectionId].total++;
+          if (Number(status.current) >= Number(config.target_count)) {
+            sectionProgress[sectionId].completed++;
+          }
+        }
+
+
+        for (let sectionId in sectionProgress) {
+          const progress = sectionProgress[sectionId];
+          const completionRate = progress.completed / progress.total;
+
+
+          const sectionButton = $(`.btn`).filter(function() {
+            return $(this).text().trim().startsWith(sectionId + ' ');
+          });
+          sectionButton.toggleClass('nuls',progress.completed == 0 );
+          sectionButton.toggleClass('nope', completionRate < progress.threshold && progress.completed > 0);
+          sectionButton.toggleClass('complete', completionRate >= progress.threshold);
+
+
+          const sectionTitle = $(`.section-title`).filter(function() {
+            return $(this).text().trim() === {{ sections|tojson|safe }}[sectionId];
+          });
+          sectionTitle.toggleClass('nuls',progress.completed == 0 );
+          sectionTitle.toggleClass('nope', completionRate < progress.threshold && progress.completed > 0 );
+          sectionTitle.toggleClass('complete', completionRate >= progress.threshold);
+
+        }
+      }
+
+
+      function checkAllMetrics() {
+        fetch('/get_metrics_status')
+          .then(response => response.json())
+          .then(data => {
+
+            document.querySelectorAll('.status-indicator').forEach(indicator => {
+              const metricId = indicator.id.replace('indicator-', '');
+              const status = data[metricId] || { current: 0, target: METRIC_CONFIGS[metricId].target_count };
+
+              indicator.classList.remove('complete');
+              if (Number(status.current) >= Number(status.target)) {
+                indicator.classList.add('complete');
+              }
+            });
+            document.querySelectorAll('.metrik').forEach(metrik => {
+                const metricId = metrik.dataset.metric;
+                const status = data[metricId] || { current: 0, target: METRIC_CONFIGS[metricId].target_count };
+
+                const progressPercent = Math.min((status.current / status.target) * 100, 100);
+
+                const progressBar = document.getElementById(`progress-${metricId}`);
+                if (progressBar) {
+                    progressBar.style.setProperty('--progress', `${progressPercent}%`);
+                }
+            });
+
+            updateSectionProgress(data);
+          });
+      }
+
+
+      checkAllMetrics();
+      setInterval(checkAllMetrics, 30000);
+
+
+      $(".stats-button").click(function() {
+        fetch('/get_metrics_status')
+          .then(response => response.json())
+          .then(data => {
+            let html = '';
+            const sections = {};
+
+            for (let id in METRIC_CONFIGS) {
+              const config = METRIC_CONFIGS[id];
+              const sectionId = config.section_id;
+              if (!sections[sectionId]) {
+                sections[sectionId] = {
+                  name: {{ sections|tojson|safe }}[sectionId],
+                  metrics: []
+                };
+              }
+              const stats = data[id] || { current: 0, target: config.target_count };
+              sections[sectionId].metrics.push({
+                title: config.title,
+                current: stats.current,
+                target: config.target_count,
+                complete: Number(stats.current) >= Number(config.target_count)
+              });
+            }
+
+            for (let sectionId in sections) {
+              const section = sections[sectionId];
+              html += `
+                <div class="section-title">
+                  ${section.name}
+                </div>
+                <div class="section-metrics">
+              `;
+
+              section.metrics.forEach(metric => {
+                html += `
+                  <div class="stat-row">
+                    <span class="stat-name ${metric.complete ? 'complete' : ''}">${metric.title}</span>
+                    <span class="stat-numbers">
+                      <span class="current">${metric.current}</span> /
+                      <span class="target">${metric.target}</span>
+                    </span>
+                  </div>
+                `;
+              });
+
+              html += '</div>';
+            }
+
+            $("#stats-content").html(html);
+            $(".stats-modal").show();
+
+
+            updateSectionProgress(data);
+          })
+          .catch(() => alert('Ошибка при загрузке статистики'));
+      });
+
+
+      $(".collapse-button").click(function() {
+        $('.section-content').hide();
+        $(".container").removeClass("active");
+        $(".stats-modal").hide();
+      });
+
+
+      $(".close-button").click(() => $(".stats-modal").hide());
+
+
+      $(document).click(function(event) {
+        if (!$(event.target).closest('.stats-modal').length &&
+          !$(event.target).is('.stats-button')) {
+          $(".stats-modal").hide();
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+  <div class="content-wrapper">
+    {% for section_id, section_name in sections.items() %}
+
+      <button class="toggle btn" data-section-id="{{ section_id }}">
+        {{ section_id }} {{ section_name }}
+      </button>
+      <div class="section-content" data-section="{{ section_id }}">
+        {% for id, metric in metrics.items() if metric.section_id == section_id %}
+          <div class="metrik" data-metric="{{ id }}">
+              <div class="progress-bar" id="progress-{{ id }}"></div>
+              {{ metric.title }}
+              <span class="status-indicator" id="indicator-{{ id }}"></span>
+          </div>
+        {% endfor %}
+      </div>
+    {% endfor %}
+
+    <div class="container"></div>
+  </div>
+
+  <div class="top-buttons">
+    <button class="collapse-button">Свернуть все</button>
+    <button class="stats-button">Показать статистику</button>
+    <a href="{{ url_for('logout') }}" class="btn">Выход</a>
+
+  </div>
+
+  <div class="stats-modal">
+    <button class="close-button">×</button>
+    <div class="metric-title">Статистика по метрикам</div>
+    <div id="stats-content"></div>
+  </div>
+</body>
+</html>
