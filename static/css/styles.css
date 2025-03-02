@@ -1,0 +1,291 @@
+html {
+    min-height: 100vh;
+    background: #36393f;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    color: #FFFFFF;
+    font-family: Georgia, serif;
+}
+
+
+.content-wrapper {
+    min-height: calc(100vh - 40px);
+    position: relative;
+}
+
+.btn {
+    display: block;
+    width: 20%;
+    min-height: 60px;
+    cursor: pointer;
+    background-color: #454950;
+    border: 1px solid #4f545c;
+    outline: none;
+    transition: 0.3s ease-in-out;
+    color: #FFFFFF;
+    text-align: left;
+    margin-bottom: 10px;
+}
+
+.btn:hover {
+    background: #5865f2;
+}
+
+
+.metrik {
+    position: relative;
+    padding: 10px 30px 10px 10px;
+    margin: 5px 0;
+    background: #454950;
+    border-radius: 3px;
+    max-width: 35%;
+    cursor: pointer;
+    display: none;
+    border: 1px solid #4f545c;
+    overflow: hidden;
+}
+
+.metrik:hover {
+    background: #4f545c;
+}
+
+
+.status-indicator {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #ff4444;
+    transition: background-color 0.3s ease;
+}
+
+.status-indicator.complete {
+    background-color: #43b581;
+}
+
+
+.container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 55%;
+    background: #454950;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    display: none;
+}
+
+.container.active {
+    display: block;
+}
+
+
+.container h3 {
+    color: white;
+    text-align: center;
+}
+
+.container label,
+.container textarea,
+.container input,
+.container button {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+input[type="text"] {
+    background: #40444b;
+    border: 1px solid #4f545c;
+    color: #dcddde;
+    padding: 8px;
+    border-radius: 4px;
+    width: 100%;
+}
+
+input[type="text"]:focus {
+    border-color: #5865f2;
+    outline: none;
+}
+
+.labblack {
+    color: #dcddde;
+}
+
+
+.top-buttons {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    gap: 10px;
+}
+
+.collapse-button {
+    padding: 10px 20px;
+    background: #40444b;
+    color: white;
+    border: 1px solid #4f545c;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.collapse-button:hover {
+    background: #4f545c;
+}
+
+.stats-button {
+    padding: 10px 20px;
+    background: #5865f2;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.stats-button:hover {
+    background: #4752c4;
+}
+
+
+.stats-modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #36393f;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    min-width: 300px;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 1001;
+}
+
+
+.stats-modal::-webkit-scrollbar {
+    width: 8px;
+}
+
+.stats-modal::-webkit-scrollbar-track {
+    background: #2f3136;
+}
+
+.stats-modal::-webkit-scrollbar-thumb {
+    background: #202225;
+}
+
+.stats-modal::-webkit-scrollbar-thumb:hover {
+    background: #40444b;
+}
+
+
+.metric-title {
+    font-size: 18px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #555;
+}
+
+.section-title {
+    color: #b0c4de;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #5865f2;
+}
+
+.section-metrics {
+    margin-left: 10px;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #4f545c;
+}
+
+.stat-name {
+    color: #dcddde;
+}
+
+.current {
+    color: #5865f2;
+}
+
+.target {
+    color: #43b581;
+}
+
+.close-button {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.close-button:hover {
+    color: white;
+}
+
+.btn.complete {
+    background-color: #43b581;
+}
+.btn.nope {
+    color: #DAA520;
+}
+.btn.nuls {
+    color: #FF0000;
+}
+.section-title.complete {
+    color: #43b581;
+    border-bottom-color: #43b581;
+}
+.section-title.nope {
+    color: #FFD700		;
+    border-bottom-color: #43b581;
+}
+.section-title.nuls {
+    color: #FF0000	;
+    border-bottom-color: #43b581;
+}
+.section-content {
+    display: none;
+}
+
+.section-content .metrik {
+    display: block;
+}
+.stat-name.complete {
+    color: #43b581;
+}
+.progress-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: linear-gradient(to right, rgba(67, 181, 129, 0.2) 0%, rgba(67, 181, 129, 0.2) var(--progress), transparent var(--progress));
+    width: 100%;
+    pointer-events: none;  /* Чтобы клики проходили сквозь прогресс-бар */
+    transition: background 0.3s ease;  /* Плавная анимация изменения */
+}
